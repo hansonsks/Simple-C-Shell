@@ -70,7 +70,7 @@ char *shell_read_input(void) {
     char *buffer = (char *) malloc(sizeof(char) * buffer_size);
 
     if (!buffer) {
-        fprintf(stderr, "\nHShell: Out of memory!\n");
+        fprintf(stderr, "HShell: Out of memory!\n");
         exit(EXIT_FAILURE);
     }
 
@@ -86,7 +86,7 @@ char *shell_read_input(void) {
             buffer = (char *) realloc(buffer, buffer_size);
 
             if (!buffer) {
-                fprintf(stderr, "\nHShell: Out of memory!\n");
+                fprintf(stderr, "HShell: Out of memory!\n");
                 exit(EXIT_FAILURE);
             }
         }
@@ -103,7 +103,7 @@ char **shell_get_args(char *input) {
     char **tokens = (char **) malloc(sizeof(char *) * buffer_size);
 
     if (!tokens) {
-        fprintf(stderr, "\nHShell: Out of memory!\n");
+        fprintf(stderr, "HShell: Out of memory!\n");
         exit(EXIT_FAILURE);
     }
 
@@ -114,7 +114,7 @@ char **shell_get_args(char *input) {
         if (token[0] == '"') {
             quoted_arg = (char *) malloc(sizeof(char) * MAX_PATH_SIZE);
             if (!quoted_arg) {
-                fprintf(stderr, "\nHShell: Out of memory!\n");
+                fprintf(stderr, "HShell: Out of memory!\n");
                 exit(EXIT_FAILURE);
             }
 
@@ -146,7 +146,7 @@ char **shell_get_args(char *input) {
             tokens = (char **) realloc(tokens, sizeof(char *) * buffer_size);
 
             if (!tokens) {
-                fprintf(stderr, "\nHShell: Out of memory!\n");
+                fprintf(stderr, "HShell: Out of memory!\n");
                 exit(EXIT_FAILURE);
             }
         }
@@ -161,6 +161,6 @@ char **shell_get_args(char *input) {
 int shell_exec(char **args) {
     int status = exec_cmd(args);
     if (status == -2)
-        fprintf(stderr, "\nUnrecognised Command: %s\n", args[0]);
+        fprintf(stderr, "Unrecognised Command: %s\n", args[0]);
     return status;
 }

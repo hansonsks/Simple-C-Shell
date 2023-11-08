@@ -109,7 +109,7 @@ char **resolve_alias(char **args) {
     char *launch_path = get_alias_path(args[1]);
     char **resolved_args = (char **) malloc(sizeof(char *) * get_arg_count(args));
     if (!resolved_args) {
-        fprintf(stderr, "\nHShell: Out of memory!\n");
+        fprintf(stderr, "HShell: Out of memory!\n");
         exit(EXIT_FAILURE);
     }
 
