@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
+#include "global_vars.h"
 #include "cmd_exec.h"
 #include "alias.h"
 #include "history.h"
@@ -9,8 +10,11 @@
 
 #define INPUT_BUFFER_SIZE 5000
 #define TOKEN_BUFFER_SIZE 200
+#define MAX_USERNAME_LEN 256
 #define TOKEN_DELIM " \t\r\n\a"
 #define MAX_PATH_SIZE 1000
+
+display_path = 0;
 
 void shell_loop(void);
 char *shell_read_input(void);
@@ -24,15 +28,24 @@ int main(int argc, char **argv) {
 void shell_loop(void) {
     int status;
     char curr_dir[MAX_PATH];
+    DWORD username_len = MAX_USERNAME_LEN;
+    TCHAR username[username_len + 1];
     char *input;
     char temp_input[INPUT_BUFFER_SIZE];
     char **args;
 
     do {
-        GetCurrentDirectory(MAX_PATH, curr_dir);
-        printf("%s>", curr_dir);
+        if (display_path) {
+            GetCurrentDirectory(MAX_PATH, curr_dir);
+            printf("%s>", curr_dir);
+        } else {
+            GetUserName(username, &username_len);
+            printf("[%s]>", username);
+        }
+
         input = shell_read_input();
         strcpy(temp_input, input);
+
         if (is_git_cmd(input)) {
             git_exec(input);
         } else {
@@ -41,6 +54,7 @@ void shell_loop(void) {
             free(input);
             free(args);
         }
+
         if (status == 1 && temp_input[0] != '\0')
             update_history(temp_input);
     } while (status != -1);
