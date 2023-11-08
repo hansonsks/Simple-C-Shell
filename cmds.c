@@ -158,13 +158,13 @@ int launch_cmd(char **args) {
             &startup_info,
             &process_info
     )) {
-        fprintf(stderr, "\nFailed to execute command: launch %s\n", args[0]);
+        fprintf(stderr, "Failed to execute command: launch %s\n", args[0]);
         return 1;
     }
 
     // Wait for the Child Process to finish
     if (WaitForSingleObject(process_info.hProcess, INFINITE) == WAIT_FAILED) {
-        fprintf(stderr, "\nError waiting for command to complete: launch %s\n", args[0]);
+        fprintf(stderr, "Error waiting for command to complete: launch %s\n", args[0]);
         CloseHandle(process_info.hProcess);
         CloseHandle(process_info.hThread);
         return 1;
@@ -193,7 +193,7 @@ int open_cmd(char **args) {
     HINSTANCE result = ShellExecute(NULL, "open", args[0], NULL, NULL, SW_SHOWNORMAL);
 
     if ((int) result <= 32) {
-        fprintf(stderr, "\nFailed to open file: %s\n", args[0]);
+        fprintf(stderr, "Failed to open file: %s\n", args[0]);
     }
 
     return 1;
@@ -239,7 +239,7 @@ int mkdir_cmd(char **args) {
 
     for (int i = 0; args[i] != NULL; i++) {
         if (!CreateDirectory(args[i], NULL)) {
-            fprintf(stderr, "\nFailed to create directory: %s\n", args[i]);
+            fprintf(stderr, "Failed to create directory: %s\n", args[i]);
         }
     }
     return 1;
@@ -320,7 +320,7 @@ int rm_cmd(char **args) {
         if (DeleteFile(args[i])) {
             printf("File deleted: %s\n", args[i]);
         } else {
-            fprintf(stderr, "\nFailed to delete file: %s\n", args[i]);
+            fprintf(stderr, "Failed to delete file: %s\n", args[i]);
         }
     }
 
@@ -337,7 +337,7 @@ int rmdir_cmd(char **args) {
         if (RemoveDirectory(args[i])) {
             printf("Directory deleted: %s\n", args[i]);
         } else {
-            fprintf(stderr, "\nFailed to remove directory: %s\n", args[i]);
+            fprintf(stderr, "Failed to remove directory: %s\n", args[i]);
         }
     }
 
