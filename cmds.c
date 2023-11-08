@@ -35,7 +35,7 @@ int help_cmd(char **args) {
     printf("ls \t\t\t-\t List files and directories in the current directory\n");
     printf("pwd \t\t\t-\t Prints the present working directory\n");
     printf("mkdir \t\t\t-\t Creates a directory / directories\n");
-    printf("whoami \t\t\t-\t Prints the current user");
+    printf("whoami \t\t\t-\t Prints the current user\n");
     printf("rm \t\t\t-\t Remove any file");
     printf("rmdir \t\t-'t Remove any directory\n");
     printf("cp <src> <dest> \t-\t Copies source file content to destination file to a designated location\n");
@@ -61,7 +61,7 @@ int help_cmd(char **args) {
     printf("save_alias <path> \t\t-\t Saves all aliases to a file of your choice\n");
     printf("load_alias <path> \t\t-\t Loads aliases from a text file\n");
     printf("list_alias \t\t\t-\t Lists all available aliases (Don't forget to load or save them!)\n");
-    printf("peek_alias <fname> \t-\tLists all available aliases in a file\n");
+    printf("peek_alias <fname> \t\t-\tLists all available aliases in a file\n");
     printf("####################################################################\n");
 
     printf("\n######################### Piping and Redirecting #########################\n");
