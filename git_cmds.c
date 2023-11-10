@@ -25,8 +25,8 @@ int git_input_exec(char *input) {
 
 int git_alias_exec(char *input) {
     char git_args[1000] = "";
-    char *first_part = "";
-    char *rest = "";
+    char first_part[100] = "";
+    char rest[1000] = "";
 
     const char *whitespace = strchr(input, ' ');
     if (whitespace != NULL) {
@@ -34,13 +34,11 @@ int git_alias_exec(char *input) {
         strncpy(first_part, input, first_part_len);
         strcpy(rest, whitespace + 1);
 
-        first_part = get_alias_path(first_part);
-        strcat(git_args, first_part);
+        strcat(git_args, get_alias_path(first_part));
         strcat(git_args, " ");
         strcat(git_args, rest);
     } else {
-        input = get_alias_path(input);
-        strcat(git_args, input);
+        strcat(git_args, get_alias_path(input));
     }
 
     return system(git_args);
