@@ -6,7 +6,10 @@ The aliases implemented are intended to be paths, so entering `add_alias my_prog
 then entering `launch my_program` will launch the program
 
 You may also add git commands as aliases, so entering `add_alias gpom "git push origin main"`, then add -> commit -> `gpom`,
-the files will be pushed to GitHub. (I used `gcommit` as `git commit -m` to commit the files that allowed this functionality)
+the files will be pushed to GitHub.
+
+As another example, you can enter `add_alias gcommit "git commit -m"`, add the files to be committed, and type `gcommit "Test Commit"`
+to commit the files
 
 This also works with PDFs / word docs (`open`) and folders (`explore`)
 
