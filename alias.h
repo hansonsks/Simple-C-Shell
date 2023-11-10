@@ -15,6 +15,7 @@ int add_alias(const char *alias, const char *path);
 int remove_alias(const char *alias);
 int modify_alias(const char *alias, const char *path);
 char *get_alias_path(const char *alias);
+int find_alias(const char *alias);
 int save_aliases(const char *fname);
 int load_aliases(const char *fname);
 void free_aliases(void);

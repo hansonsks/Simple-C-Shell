@@ -31,7 +31,7 @@ void shell_loop(void) {
     DWORD username_len = MAX_USERNAME_LEN;
     TCHAR username[username_len + 1];
     char *input;
-    char temp_input[INPUT_BUFFER_SIZE];
+    char history_input[INPUT_BUFFER_SIZE];
     char **args;
 
     do {
@@ -44,19 +44,22 @@ void shell_loop(void) {
         }
 
         input = shell_read_input();
-        strcpy(temp_input, input);
+        strcpy(history_input, input);
 
         if (is_git_cmd(input)) {
-            git_exec(input);
+            git_input_exec(input);
+        } else if (has_git_alias(input)) {
+            git_alias_exec(input);
         } else {
             args = shell_get_args(input);
             status = shell_exec(args);
-            free(input);
             free(args);
         }
 
-        if (status == 1 && temp_input[0] != '\0')
-            update_history(temp_input);
+        free(input);
+
+        if (status == 1 && history_input[0] != '\0')
+            update_history(history_input);
     } while (status != -1);
 
     free_aliases();
@@ -70,7 +73,7 @@ char *shell_read_input(void) {
     char *buffer = (char *) malloc(sizeof(char) * buffer_size);
 
     if (!buffer) {
-        fprintf(stderr, "\nHShell: Out of memory!\n");
+        fprintf(stderr, "HShell: Out of memory!\n");
         exit(EXIT_FAILURE);
     }
 
@@ -86,7 +89,7 @@ char *shell_read_input(void) {
             buffer = (char *) realloc(buffer, buffer_size);
 
             if (!buffer) {
-                fprintf(stderr, "\nHShell: Out of memory!\n");
+                fprintf(stderr, "HShell: Out of memory!\n");
                 exit(EXIT_FAILURE);
             }
         }
@@ -103,7 +106,7 @@ char **shell_get_args(char *input) {
     char **tokens = (char **) malloc(sizeof(char *) * buffer_size);
 
     if (!tokens) {
-        fprintf(stderr, "\nHShell: Out of memory!\n");
+        fprintf(stderr, "HShell: Out of memory!\n");
         exit(EXIT_FAILURE);
     }
 
@@ -114,7 +117,7 @@ char **shell_get_args(char *input) {
         if (token[0] == '"') {
             quoted_arg = (char *) malloc(sizeof(char) * MAX_PATH_SIZE);
             if (!quoted_arg) {
-                fprintf(stderr, "\nHShell: Out of memory!\n");
+                fprintf(stderr, "HShell: Out of memory!\n");
                 exit(EXIT_FAILURE);
             }
 
@@ -146,7 +149,7 @@ char **shell_get_args(char *input) {
             tokens = (char **) realloc(tokens, sizeof(char *) * buffer_size);
 
             if (!tokens) {
-                fprintf(stderr, "\nHShell: Out of memory!\n");
+                fprintf(stderr, "HShell: Out of memory!\n");
                 exit(EXIT_FAILURE);
             }
         }
@@ -161,6 +164,6 @@ char **shell_get_args(char *input) {
 int shell_exec(char **args) {
     int status = exec_cmd(args);
     if (status == -2)
-        fprintf(stderr, "\nUnrecognised Command: %s\n", args[0]);
+        fprintf(stderr, "Unrecognised Command: %s\n", args[0]);
     return status;
 }

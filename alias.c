@@ -10,6 +10,10 @@ int alias_count = 0;
 AliasItem alias_list[MAX_ALIAS_ITEMS];
 
 int add_alias(const char *alias, const char *path) {
+    if (find_alias(alias)) {
+        return modify_alias(alias, path);
+    }
+
     if (alias_count < MAX_ALIAS_ITEMS && alias != NULL && path != NULL) {
         alias_list[alias_count].alias = strdup(alias);
         alias_list[alias_count].path = strdup(path);
@@ -57,12 +61,29 @@ int modify_alias(const char *alias, const char *path) {
 }
 
 char *get_alias_path(const char *alias) {
+    if (alias == NULL) {
+        return NULL;
+    }
+
     for (int i = 0; i < alias_count; i++) {
         if (strcmp(alias, alias_list[i].alias) == 0) {
             return alias_list[i].path;
         }
     }
     return NULL;
+}
+
+int find_alias(const char *alias) {
+    if (alias == NULL) {
+        return 0;
+    }
+
+    for (int i = 0; i < alias_count; i++) {
+        if (strcmp(alias, alias_list[i].alias) == 0) {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 int save_aliases(const char *fname) {

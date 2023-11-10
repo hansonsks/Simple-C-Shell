@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include "alias.h"
 
 //#define MAX_GIT_CMD_LEN 1000
 
@@ -17,12 +18,36 @@
 //    return system(full_cmd);
 //}
 
-int git_exec(char *input) {
+int git_input_exec(char *input) {
+    // Let Git handle git commands
     return system(input);
 }
 
-int is_git_cmd(char *input) {
-    if (strlen(input) < 3) {
+int git_alias_exec(char *input) {
+    char git_args[1000] = "";
+    char *first_part = "";
+    char *rest = "";
+
+    const char *whitespace = strchr(input, ' ');
+    if (whitespace != NULL) {
+        size_t first_part_len = whitespace - input;
+        strncpy(first_part, input, first_part_len);
+        strcpy(rest, whitespace + 1);
+
+        first_part = get_alias_path(first_part);
+        strcat(git_args, first_part);
+        strcat(git_args, " ");
+        strcat(git_args, rest);
+    } else {
+        input = get_alias_path(input);
+        strcat(git_args, input);
+    }
+
+    return system(git_args);
+}
+
+int is_git_cmd(const char *input) {
+    if (input == NULL) {
         return 0;
     }
 
@@ -30,4 +55,10 @@ int is_git_cmd(char *input) {
     int i = 0;
     while (i < 3 && (git_str[i] == input[i])) i++;
     return i == 3;
+}
+
+int has_git_alias(char *input) {
+    char temp[100] = "";
+    strcpy(temp, input);
+    return find_alias(strtok(temp, " "));
 }

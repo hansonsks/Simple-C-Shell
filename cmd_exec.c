@@ -1,6 +1,7 @@
 #include "cmds.h"
 #include "string.h"
 #include "alias.h"
+#include "git_cmds.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -89,6 +90,25 @@ int exec_cmd(char **args) {
         }
     }
 
+//    char git_cmd[1000]; git_cmd[0] = '\0';
+//    if (is_git_cmd(get_alias_path(cmd))) {
+//        strcat(git_cmd, get_alias_path(cmd));
+//        strcat(git_cmd, " ");
+//        if (resolved_args != NULL) {
+//            for (int i = 0; resolved_args[i] != NULL; i++) {
+//                strcat(git_cmd, resolved_args[i]);
+//                strcat(git_cmd, " ");
+//            }
+//        }
+//        exit_code = git_exec(git_cmd);
+//    } else {
+//        for (int i = 0; i < get_cmd_count(); i++) {
+//            if (strcmp(cmd, builtin_strs[i]) == 0) {
+//                exit_code = (*builtin_cmds[i]) (resolved_args);
+//            }
+//        }
+//    }
+
     if (resolved_args != NULL)
         free(resolved_args);
 
@@ -109,7 +129,7 @@ char **resolve_alias(char **args) {
     char *launch_path = get_alias_path(args[1]);
     char **resolved_args = (char **) malloc(sizeof(char *) * get_arg_count(args));
     if (!resolved_args) {
-        fprintf(stderr, "\nHShell: Out of memory!\n");
+        fprintf(stderr, "HShell: Out of memory!\n");
         exit(EXIT_FAILURE);
     }
 
@@ -130,7 +150,3 @@ char **resolve_alias(char **args) {
 
     return resolved_args;
 }
-
-
-
-
