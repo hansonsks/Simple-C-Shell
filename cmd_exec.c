@@ -26,6 +26,7 @@ char *builtin_strs[] = {
         "rmdir",
         "cp",
         "mv",
+        "cat",
         "history",
         "find",
         "add_alias",
@@ -37,7 +38,9 @@ char *builtin_strs[] = {
         "peek_alias",
         "clear_alias",
         "hide_path",
-        "show_path"
+        "show_path",
+        "df",
+        "du"
 };
 
 int (*builtin_cmds[]) (char **) = {
@@ -58,6 +61,7 @@ int (*builtin_cmds[]) (char **) = {
         &rmdir_cmd,
         &cp_cmd,
         &mv_cmd,
+        &cat_cmd,
         &history_cmd,
         &find_cmd,
         &add_alias_cmd,
@@ -69,7 +73,9 @@ int (*builtin_cmds[]) (char **) = {
         &peek_alias_cmd,
         &clear_alias_cmd,
         &hide_path,
-        &show_path
+        &show_path,
+        &df_cmd,
+        &du_cmd
 };
 
 int get_cmd_count() {

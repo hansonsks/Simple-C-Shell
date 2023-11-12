@@ -4,11 +4,13 @@
 #include "alias.h"
 #include <stdio.h>
 #include <windows.h>
+#include <shlwapi.h>
 
 #define MAX_USERNAME_LEN 256
 #define INPUT_BUFFER_SIZE 2000
 
 int find_recursive(const char *dir, const char *pattern);
+ULONGLONG du_recursive(char *dir_path);
 
 int cd_cmd(char **args) {
     if (args == NULL || args[0] == NULL) {
@@ -40,6 +42,7 @@ int help_cmd(char **args) {
     printf("rmdir \t\t-'t Remove any directory\n");
     printf("cp <src> <dest> \t-\t Copies source file content to destination file to a designated location\n");
     printf("mv <src> <dest> \t-\t Moves a directory to a designated location\n");
+    printf("cat <filename> \t-\t Prints the file content only for now\n");
     printf("echo \t\t\t-\t Displays text as stdout\n");
     printf("date \t\t\t-\t Displays the current time\n");
     printf("history \t\t-\t Displays the command history\n");
@@ -50,6 +53,8 @@ int help_cmd(char **args) {
     printf("hide_path \t\t\t-\t Hides the current path and only display your username in the terminal\n");
     printf("show_path \t\t\t-\t Displays the path and hides your username\n");
     printf("find <path> <fname / *extension> \t-\t Finds files with a given name or extension (e.g., find folder1 alias*.txt)\n");
+    printf("df <drive>\t\t-\t Prints the total, used, and free space in a given drive\n");
+    printf("du <directory>\t\t-\t Prints the size of all sub-directories in the current directory (Needs some fixing)\n");
     printf("Note: If you have spaces in one argument, close them with double quotes like ""[cd \"C:\\Users\\Hanson Siu\"], don't use backslashes\n");
     printf("####################################################################\n");
 
@@ -397,6 +402,42 @@ int mv_cmd(char **args) {
     return 1;
 }
 
+int cat_cmd(char **args) {
+    if (args == NULL || args[0] == NULL) {
+        printf("Usage: cat <filename>\n");
+        return 0;
+    }
+
+    const char *fname = args[0];
+    HANDLE file_handle = CreateFile(fname, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file_handle == INVALID_HANDLE_VALUE) {
+        fprintf(stderr, "Failed to open file: \"%s\"\n", fname);
+        CloseHandle(file_handle);
+        return 0;
+    }
+
+    DWORD file_size = GetFileSize(file_handle, NULL);
+    char *file_content = (char *) malloc(file_size + 1);
+    if (file_content == NULL) {
+        fprintf(stderr, "Unable to allocate memory for opening \"%s\"\n", fname);
+        CloseHandle(file_handle);
+        return 0;
+    }
+
+    DWORD bytes_read;
+    if (ReadFile(file_handle, file_content, file_size, &bytes_read, NULL) && bytes_read == file_size) {
+        file_content[file_size] = '\0';
+        printf("%s", file_content);
+    } else {
+        fprintf(stderr, "Failed to read file: \"%s\"\n", fname);
+    }
+
+    free(file_content);
+    CloseHandle(file_handle);
+
+    return 1;
+}
+
 int history_cmd(char **args) {
     history_loop();
     return 3;
@@ -509,4 +550,79 @@ int show_path(char **args) {
     display_path = 1;
     printf("Your path is now displayed\n");
     return 1;
+}
+
+int df_cmd(char **args) {
+    if (args == NULL || args[0] == NULL || strlen(args[0]) > 1) {
+        printf("Usage: df <drive>\n");
+        return 0;
+    }
+
+    char drive_arg = toupper(args[0][0]);
+    char drive[2] = "";
+    sprintf(drive, "%c:", drive_arg);
+
+    ULARGE_INTEGER free_bytes_available;
+    ULARGE_INTEGER total_bytes;
+    ULARGE_INTEGER total_free_bytes;
+    double total_space, used_space, free_space;
+
+    if (GetDiskFreeSpaceEx(drive, &free_bytes_available, &total_bytes, &total_free_bytes)) {
+        total_space = (double) total_bytes.QuadPart / (1 << 30);
+        free_space = (double) total_free_bytes.QuadPart / (1 << 30);
+        used_space = total_space - free_space;
+        printf("Total space: %.2f GB\n", total_space);
+        printf("Used space: %.2f GB\n", used_space);
+        printf("Free space: %.2f GB\n", free_space);
+        printf("Available space: %.2f GB\n", (double) free_bytes_available.QuadPart / (1 << 30));
+    } else {
+        fprintf(stderr, "Unable to get disk space information for drive %c\n", drive_arg);
+        return 0;
+    }
+
+    return 1;
+}
+
+int du_cmd(char **args) {
+    if (args == NULL || args[0] == NULL) {
+        printf("Usage: du <directory>\n");
+        return 0;
+    }
+
+    du_recursive(args[0]);
+
+    return 1;
+}
+
+ULONGLONG du_recursive(char *dir_path) {
+    char search_path[MAX_PATH];
+    sprintf(search_path, "%s\\*", dir_path);
+
+    WIN32_FIND_DATA find_file_data;
+    HANDLE find_handle = FindFirstFile(search_path, &find_file_data);
+    if (find_handle == INVALID_HANDLE_VALUE) {
+        fprintf(stderr, "Unable to open directory: %s\n", dir_path);
+        return 0;
+    }
+
+    ULONGLONG total_size = 0, file_size = 0, folder_size = 0;
+    char next_directory[MAX_PATH];
+
+    //TODO: Restrict printing to current directory's subdirectories only
+    do { // This version prints all subdirectories of subdirectories and so on
+        if (strcmp(find_file_data.cFileName, ".") != 0 && strcmp(find_file_data.cFileName, "..") != 0) {
+            file_size = find_file_data.nFileSizeLow + ((ULONGLONG) find_file_data.nFileSizeHigh << 32);
+            if (find_file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+                sprintf(next_directory, "%s\\%s", dir_path, find_file_data.cFileName);
+                folder_size = du_recursive(next_directory);
+                total_size += folder_size;
+                printf("%s: %.2f MB\n", find_file_data.cFileName, folder_size / (1024.0 * 1024.0));
+            } else {
+                total_size += file_size;
+            }
+        }
+    } while (FindNextFile(find_handle, &find_file_data) != 0);
+
+    FindClose(find_handle);
+    return total_size;
 }

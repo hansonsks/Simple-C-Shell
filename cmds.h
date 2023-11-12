@@ -18,6 +18,7 @@ int rm_cmd(char **args);
 int rmdir_cmd(char **args);
 int cp_cmd(char **args);
 int mv_cmd(char **args);
+int cat_cmd(char **args);
 int history_cmd(char **args);
 int find_cmd(char **args);
 int add_alias_cmd(char **args);
@@ -30,5 +31,7 @@ int peek_alias_cmd(char **args);
 int clear_alias_cmd(char **args);
 int hide_path(char **args);
 int show_path(char **args);
+int df_cmd(char **args);
+int du_cmd(char **args);
 
 #endif //CMDS_H
